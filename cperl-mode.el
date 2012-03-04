@@ -8505,14 +8505,35 @@ the appropriate statement modifier."
 				 (documentation-property
 				  'cperl-short-docs
 				  'variable-documentation))))
-	 (manual-program (if is-func "perldoc -f" "perldoc")))
-    (cond
-     ((featurep 'xemacs)
-      (let ((Manual-program "perldoc")
-	    (Manual-switches (if is-func (list "-f"))))
-	(manual-entry word)))
-     (t
-      (Man-getpage-in-background word)))))
+         (manual-program nil)
+         ;; option is the first char separated by single whitespace
+         (is-option (string-match " " word)))
+    	 
+    (if  (not is-option)
+        (setq manual-program (if is-func "perldoc -f" "perldoc"))
+      ;; option parsing
+      (setq manual-program
+            (cond ((string-prefix-p "f " word t)
+                   "perldoc -f")
+                  ((string-prefix-p "v " word t)
+                   "perldoc -v")
+                  ((string-prefix-p "q " word t)
+                   "perldoc -q")
+                  ((string-prefix-p "m " word t)
+                   "perldoc -m")
+                  (t  (error "%s%s" "Unrecognized option. "
+                             "Only 'f, v, q, m' options are supported."))))
+      ;; strip off option for query
+      ;; also enclose with single quote to avoid possible shell interpretation
+      (setq word (concat "'" (substring word (+ is-option 1)) "'")))
+
+  (cond
+   ((featurep 'xemacs)
+    (let ((Manual-program "perldoc")
+          (Manual-switches (if is-func (list "-f"))))
+      (manual-entry word)))
+   (t
+    (Man-getpage-in-background word)))))
 
 ;;;###autoload
 (defun cperl-perldoc-at-point ()

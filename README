@@ -1,1 +1,14 @@
 cperl-mode
+=============
+
+
+enhanced cperl-perldoc
+-------
+
+add option in query to specify particular query type, similar to the section
+number in `man' query.
+
+Example: now, after "M-x cperl-perldoc" you can type "v $_" to get document on
+'$_'.
+
+"f, q, v, m" options in perldoc are supported.
